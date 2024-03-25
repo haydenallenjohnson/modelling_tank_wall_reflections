@@ -62,8 +62,8 @@ function g_tank = compute_tank_greens_function(r_source,r_receiver,omega,Lx,Ly,L
             for m = -m_max:m_max
                 % compute lattice displacement vector and check whether
                 % this block can contain images within the cutoff distance
-                R_r = 2*[n*Lx; l*Ly; m*Lz];
-                if sqrt(sum(R_r.^2)) + max_diagonal_length <= cutoff_distance
+                r_translation = 2*[n*Lx; l*Ly; m*Lz];
+                if sqrt(sum(r_translation.^2)) - 2*max_diagonal_length <= cutoff_distance
                     % iterate over the 8 source images within this block of
                     % the lattice
                     for q = 0:1
@@ -71,11 +71,11 @@ function g_tank = compute_tank_greens_function(r_source,r_receiver,omega,Lx,Ly,L
                             for k = 0:1
                                 % compute the source image separation
                                 % vector within the block
-                                R_p = r_receiver - r_source + 2*[q; j; k].*r_source;
+                                r_image = r_translation + [1-2*q; 1-2*j; 1-2*k].*r_source;
                                 
                                 % compute free-field greens function for
                                 % this source image
-                                g_free = compute_free_field_greens_function([0;0;0],R_r+R_p,omega,c);
+                                g_free = compute_free_field_greens_function(r_image,r_receiver,omega,c);
                                 
                                 % multiply by reflection coefficients and
                                 % add this imager term to the sum
