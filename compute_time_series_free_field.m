@@ -38,5 +38,5 @@ function p_receiver = compute_time_series_free_field(p_source,dt,r_source,r_rece
     
     % compute free-field received signal
     fft_receiver = g_free.*fft_source;
-    p_receiver = ifft(fft_receiver);
+    p_receiver = real(ifft(fft_receiver));
 end

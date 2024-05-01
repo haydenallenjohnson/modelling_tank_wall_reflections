@@ -26,7 +26,7 @@ function g_free = compute_free_field_greens_function(r1,r2,omega,c)
     r = sqrt(sum((r2-r1).^2));
     
     % compute first N/2+1 values of the greens function
-    g_free(1:N/2+1) = exp(-1i*r*omega(1:N/2+1)./c)./(4*pi*r);
+    g_free(1:N/2+1) = exp(-1i*r*omega(1:N/2+1)./c)./r;
     
     % specify the rest of the values as the complex conjugates of the first
     % half

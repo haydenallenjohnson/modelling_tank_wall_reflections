@@ -58,5 +58,5 @@ function p_receiver = compute_time_series_with_tank_wall_reflection(p_source,dt,
 
     % compute received signal
     fft_receiver_tank = g_tank.*fft_source;
-    p_receiver = ifft(fft_receiver_tank);
+    p_receiver = real(ifft(fft_receiver_tank));
 end
