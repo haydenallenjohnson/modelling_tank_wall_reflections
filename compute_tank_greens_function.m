@@ -42,14 +42,16 @@ function g_tank = compute_tank_greens_function(r_source,r_receiver,omega,Lx,Ly,L
     % the receiver.
     
     % Written by Hayden Johnson, 2024-03-11
+    % Modified 2024-06-11 to adopt different index conventions and fix a
+    % typo
 
     %----------------------------------------------------------------------
 
     % compute limits of sum from cutoff time
     cutoff_distance = cutoff_time*c;
-    n_max = ceil(cutoff_distance./(Lx*2));
-    l_max = ceil(cutoff_distance./(Ly*2));
-    m_max = ceil(cutoff_distance./(Lz*2));
+    l_max = ceil(cutoff_distance./(Lx*2));
+    m_max = ceil(cutoff_distance./(Ly*2));
+    n_max = ceil(cutoff_distance./(Lz*2));
     max_diagonal_length = sqrt(sum([Lx; Ly; Lz].^2));
     
     g_tank = zeros(size(omega)); % initialize sum
@@ -57,29 +59,29 @@ function g_tank = compute_tank_greens_function(r_source,r_receiver,omega,Lx,Ly,L
     % iterate over lattice displacement vectors
     % (if the Matlab parallel computing toolbox is installed, the outermost
     % loop can be replaced with a parfor loop to get faster performance)
-    for n = -n_max:n_max 
-        for l = -l_max:l_max
-            for m = -m_max:m_max
+    parfor l = -l_max:l_max 
+        for m = -m_max:m_max
+            for n = -n_max:n_max
                 % compute lattice displacement vector and check whether
                 % this block can contain images within the cutoff distance
-                r_translation = 2*[n*Lx; l*Ly; m*Lz];
+                r_translation = 2*[l*Lx; m*Ly; n*Lz];
                 if sqrt(sum(r_translation.^2)) - 2*max_diagonal_length <= cutoff_distance
                     % iterate over the 8 source images within this block of
                     % the lattice
-                    for q = 0:1
+                    for i = 0:1
                         for j = 0:1
                             for k = 0:1
                                 % compute the source image separation
                                 % vector within the block
-                                r_image = r_translation + [1-2*q; 1-2*j; 1-2*k].*r_source;
+                                r_image = r_translation + [1-2*i; 1-2*j; 1-2*k].*r_source;
                                 
                                 % compute free-field greens function for
                                 % this source image
                                 g_free = compute_free_field_greens_function(r_image,r_receiver,omega,c);
                                 
                                 % multiply by reflection coefficients and
-                                % add this imager term to the sum
-                                g_tank = g_tank + beta_wall.^(abs(n-q)+abs(n)+abs(l-j)+abs(j)+abs(m-k))*beta_surface.^abs(m).*g_free;
+                                % add this image term to the sum
+                                g_tank = g_tank + beta_wall.^(abs(l-i)+abs(l)+abs(m-j)+abs(m)+abs(n-k)).*beta_surface.^abs(n).*g_free;
                             end
                         end
                     end
